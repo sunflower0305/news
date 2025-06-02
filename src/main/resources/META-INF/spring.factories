@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.zly.commons.captcha.CaptchaAutoConfiguration,\
+  com.zly.commons.sms.IpSmsAutoConfiguration,\
+  com.zly.commons.security.oauth.OauthAutoConfiguration
