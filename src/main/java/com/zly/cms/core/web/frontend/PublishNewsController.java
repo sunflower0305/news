@@ -64,8 +64,15 @@ public class PublishNewsController {
         }
         
         // 获取可用的新闻栏目
-        List<Channel> channels = channelService.selectList(ChannelArgs.of().siteId(site.getId()));
-        modelMap.put("channels", channels);
+        List<Channel> allChannels = channelService.selectList(ChannelArgs.of().siteId(site.getId()));
+        
+        // 只保留包含"国内"或"国际"的栏目
+        List<Channel> filteredChannels = allChannels.stream()
+                .filter(channel -> channel.getName() != null && 
+                        (channel.getName().contains("国内") || channel.getName().contains("国际")))
+                .collect(Collectors.toList());
+        
+        modelMap.put("channels", filteredChannels);
         
         return site.assembleTemplate(PUBLISH_NEWS_TEMPLATE);
     }
