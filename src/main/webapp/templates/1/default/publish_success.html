@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="发布成功">
+    <meta name="author" content="${site.name}">
+    <title>发布成功 - ${site.name}</title>
+    [#include "inc_meta.html"/]
+    [#include "inc_css.html"/]
+</head>
+<body>
+    [#include "inc_header.html"/]
+    
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4><i class="fas fa-check-circle mr-2"></i>发布成功</h4>
+                    </div>
+                    <div class="card-body text-center py-5">
+                        <h3 class="mb-4">新闻发布成功，等待审核</h3>
+                        <p class="lead">您的新闻已提交，管理员审核后将会发布</p>
+                        <div class="mt-4">
+                            <a href="${ctx}/" class="btn btn-primary mr-2">返回首页</a>
+                            <a href="${ctx}/publish-news" class="btn btn-outline-secondary">继续发布</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    [#include "inc_footer.html"/]
+    [#include "inc_js.html"/]
+</body>
+</html>

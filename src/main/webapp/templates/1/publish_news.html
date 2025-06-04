@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="发布新闻">
+    <meta name="author" content="${site.name}">
+    <title>发布新闻 - ${site.name}</title>
+    <#include "/include/head.html">
+    <link href="${ctx}/cp/tinymce/tinymce.min.css" rel="stylesheet">
+    <script src="${ctx}/cp/tinymce/tinymce.min.js"></script>
+    <style>
+        .required:after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <#include "/include/header.html">
+    
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>发布新闻</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="publishForm" method="post">
+                            <div class="form-group">
+                                <label for="channelId" class="required">选择栏目</label>
+                                <select class="form-control" id="channelId" name="channelId" required>
+                                    <option value="">请选择栏目</option>
+                                    <#if channels??>
+                                        <#list channels as channel>
+                                            <option value="${channel.id}">${channel.name}</option>
+                                        </#list>
+                                    </#if>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="title" class="required">标题</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="summary">摘要</label>
+                                <textarea class="form-control" id="summary" name="summary" rows="3"></textarea>
+                                <small class="form-text text-muted">可选，简要描述新闻内容</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="image">标题图</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="image" name="image">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="uploadImageBtn">上传</button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">可选，新闻标题图片</small>
+                                <div id="imagePreview" class="mt-2" style="display:none;">
+                                    <img src="" class="img-thumbnail" style="max-height:150px;">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="text" class="required">正文内容</label>
+                                <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="tags">标签</label>
+                                <input type="text" class="form-control" id="tags" name="tags">
+                                <small class="form-text text-muted">可选，多个标签请用逗号分隔</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">发布新闻</button>
+                                <button type="button" class="btn btn-secondary" onclick="history.back()">取消</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <#include "/include/footer.html">
+    
+    <script>
+        $(function() {
+            // 初始化富文本编辑器
+            tinymce.init({
+                selector: '#text',
+                language: 'zh_CN',
+                height: 400,
+                plugins: 'link image code table lists media',
+                toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image media | table | code',
+                images_upload_url: '${ctx}/api/upload',
+                automatic_uploads: true,
+                images_reuse_filename: true,
+                relative_urls: false,
+                remove_script_host: false
+            });
+            
+            // 图片预览
+            $('#image').on('change', function() {
+                var imageUrl = $(this).val();
+                if (imageUrl) {
+                    $('#imagePreview').show();
+                    $('#imagePreview img').attr('src', imageUrl);
+                } else {
+                    $('#imagePreview').hide();
+                }
+            });
+            
+            // 上传图片按钮
+            $('#uploadImageBtn').on('click', function() {
+                // 这里可以实现上传图片的功能，或者打开上传对话框
+                // 简单示例，实际应该调用上传API
+                alert('请实现图片上传功能');
+            });
+            
+            // 表单提交
+            $('#publishForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取富文本编辑器内容
+                var textContent = tinymce.get('text').getContent();
+                
+                // 表单验证
+                if (!$('#channelId').val()) {
+                    alert('请选择栏目');
+                    return false;
+                }
+                
+                if (!$('#title').val()) {
+                    alert('请输入标题');
+                    return false;
+                }
+                
+                if (!textContent) {
+                    alert('请输入正文内容');
+                    return false;
+                }
+                
+                // 提交表单
+                $.ajax({
+                    url: $(this).attr('action') || window.location.href,
+                    type: 'POST',
+                    data: {
+                        channelId: $('#channelId').val(),
+                        title: $('#title').val(),
+                        summary: $('#summary').val(),
+                        image: $('#image').val(),
+                        text: textContent,
+                        tags: $('#tags').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.href = '${ctx}/';
+                        } else {
+                            alert(response.message || '发布失败，请重试');
+                        }
+                    },
+                    error: function() {
+                        alert('发布失败，请重试');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

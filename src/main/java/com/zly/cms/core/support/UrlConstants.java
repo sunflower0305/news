@@ -32,6 +32,10 @@ public class UrlConstants {
      * 文章URL
      */
     public static final String ARTICLE = "/article";
+    /**
+     * 发布新闻URL
+     */
+    public static final String PUBLISH_NEWS = "/publish-news";
 
     /**
      * 返回URL参数名

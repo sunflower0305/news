@@ -38,6 +38,11 @@
               </li>
             [/#list]
           [/@ChannelList]
+          [#if user??]
+          <li class="nav-item">
+            <a class="nav-link[#if publishNews??] active[/#if]" href="${dy}/publish-news">发布新闻</a>
+          </li>
+          [/#if]
         </ul>
       </div>
       [#--<div class="collapse d-xl-block mt-1 mt-xl-0" id="navbarNavDropdown">--]
