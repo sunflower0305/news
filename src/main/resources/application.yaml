@@ -14,6 +14,7 @@ spring.datasource.username: root
 spring.datasource.password:
 # 数据库驱动。常用数据库（如MySQL、PostegreSQL、Oracle）可通过jdbc url自动判断，不用指定。无法自动判断时（如国产数据库），需要手动指定。
 #spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+
 # 执行初始化脚本的数据库类型。
 ujcms.data-sql-platform: mysql
 # 数据库类型（用于数据库备份）。支持 mysql、postgresql、kingbase、opengauss
@@ -317,11 +318,11 @@ jodconverter.local.enabled: false
 # LibreOffice Linux 通常为 /usr/lib/libreoffice、/usr/lib64/libreoffice、/opt/libreoffice7.4
 # LibreOffice Centos 通常为 /usr/bin/libreoffice
 # LibreOffice Windows 通常为 C:/Program Files/LibreOffice
-jodconverter.local.office-home: C:/Program Files/LibreOffice
+#jodconverter.local.office-home: C:/Program Files/LibreOffice
 # 端口号。如果同一台服务器启动多个程序，需要修改端口号，使其不重复
-jodconverter.local.port-numbers: 8100
+#jodconverter.local.port-numbers: 8100
 # This property sets the maximum number of tasks an office process can execute before restarting. Default: 200
-jodconverter.local.max-tasks-per-process: 50
+#jodconverter.local.max-tasks-per-process: 50
 
 # 是否开启数据迁移功能。一般情况应关闭该功能，只在迁移数据时开启。默认：false
 #ujcms.dataMigrationEnabled: false

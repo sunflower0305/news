@@ -52,7 +52,7 @@ import java.util.Properties;
 import static com.zly.cms.core.support.UrlConstants.*;
 
 /**
- * 根据 https://start.spring.io/ 生成的代码范例。
+ * 根据 <a href="https://start.spring.io/">...</a> 生成的代码范例。
  * <p>
  * SpringBoot的入口和主要配置文件
  *
@@ -62,7 +62,7 @@ import static com.zly.cms.core.support.UrlConstants.*;
 public class Application extends SpringBootServletInitializer
         implements WebApplicationInitializer, ApplicationContextAware {
     /**
-     * UJCMS 配置
+     * 配置
      */
     @Bean
     public Props props() {
