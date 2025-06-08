@@ -1,0 +1,37 @@
+# 本地构建 JAR 包后打入 Docker 镜像的 Dockerfile
+FROM eclipse-temurin:17-jre-alpine AS runtime
+
+WORKDIR /app
+
+# 安装 wget（用于健康检查，Alpine 默认包含）
+# RUN apk add --no-cache wget  # 通常不需要，Alpine 默认包含
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S newsapp && \
+    adduser -u 1001 -S newsapp -G newsapp
+
+# 从本地复制已构建好的 JAR 文件
+COPY target/news-*.jar app.jar
+
+# 复制静态资源
+COPY src/main/webapp ./static
+
+# 创建必要的目录并设置权限
+RUN mkdir -p static/uploads static/WEB-INF/lucene && \
+    chown -R newsapp:newsapp /app
+
+# 切换到非 root 用户
+USER newsapp
+
+# 暴露端口
+EXPOSE 8080
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# 设置环境变量
+ENV JAVA_OPTS="-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
+
+# 启动应用
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

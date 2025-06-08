@@ -1,0 +1,80 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: news-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: news
+      MYSQL_USER: newsuser
+      MYSQL_PASSWORD: newspassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --innodb_file_per_table=ON
+      --max_connections=200
+      --innodb_buffer_pool_size=256M
+      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO
+    networks:
+      - news-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "newsuser", "-pnewspassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  news-app:
+    build: 
+      context: .
+      dockerfile: ${DOCKERFILE:-Dockerfile.local}
+    container_name: news-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/news?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&autoReconnect=true
+      SPRING_DATASOURCE_USERNAME: newsuser
+      SPRING_DATASOURCE_PASSWORD: newspassword
+      SPRING_PROFILES_ACTIVE: docker
+      # JVM 优化参数
+      JAVA_OPTS: >-
+        -Xms512m
+        -Xmx1024m
+        -XX:+UseG1GC
+        -XX:G1HeapRegionSize=16m
+        -XX:+UseStringDeduplication
+        -XX:+OptimizeStringConcat
+        -Djava.security.egd=file:/dev/./urandom
+        -Dfile.encoding=UTF-8
+        -Dsun.jnu.encoding=UTF-8
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+UseContainerSupport
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - news_uploads:/app/static/uploads
+      - news_lucene:/app/static/WEB-INF/lucene
+    networks:
+      - news-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql_data:
+  news_uploads:
+  news_lucene:
+
+networks:
+  news-network:
+    driver: bridge

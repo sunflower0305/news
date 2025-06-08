@@ -1,0 +1,103 @@
+# Docker环境下的应用配置文件
+# 数据库连接配置
+spring.datasource.url: jdbc:mysql://localhost:3306/news?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&nullCatalogMeansCurrent=true
+spring.datasource.username: newsuser
+spring.datasource.password: news123
+
+# 执行初始化脚本的数据库类型
+ujcms.data-sql-platform: mysql
+ujcms.databaseType: mysql
+ujcms.databaseBinPath:
+
+# 服务端口配置
+server.port: 80
+
+# Session配置
+server.servlet.session.tracking-modes: cookie
+server.servlet.session.cookie.http-only: true
+
+# 文件上传配置
+spring.servlet.multipart.max-file-size: -1
+spring.servlet.multipart.max-request-size: -1
+
+# JSP配置
+server.servlet.jsp.registered: false
+
+# HTTP Method配置
+spring.mvc.hiddenmethod.filter.enabled: true
+
+# 错误处理配置
+server.error.include-message: ALWAYS
+server.error.include-exception: true
+server.error.include-stacktrace: ALWAYS
+
+# 日志配置
+logging.level.root: INFO
+logging.level.org.springframework.boot.web.embedded.tomcat.TomcatWebServer: INFO
+logging.level.com.zly.cms.Application: INFO
+spring.main.banner-mode: off
+
+# API文档配置
+springdoc.api-docs.enabled: true
+springdoc.swagger-ui.enabled: true
+
+# MyBatis配置
+mybatis.configuration.default-fetch-size: 100
+mybatis.configuration.default-statement-timeout: 30
+mybatis.configuration.map-underscore-to-camel-case: true
+mybatis.configuration.cache-enabled: true
+mybatis.mapper-locations:
+  - classpath*:com/zly/cms/core/mapper/*.xml
+  - classpath*:com/zly/cms/ext/mapper/*.xml
+
+# 分页配置
+pagehelper.dialect-alias: gbase=com.github.pagehelper.dialect.helper.InformixDialect
+
+# Jackson配置
+spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+spring.jackson.deserialization.USE_BIG_DECIMAL_FOR_FLOATS: true
+spring.jackson.mapper.DEFAULT_VIEW_INCLUSION: true
+
+# 缓存配置
+spring.cache.type: caffeine
+
+# 线程池配置
+spring.task.execution.pool.max-size: 16
+spring.task.execution.pool.queue-capacity: 2048
+
+# 模板配置
+spring.freemarker.template-loader-path: /templates/
+spring.freemarker.suffix: .html
+spring.freemarker.settings.tag_syntax: square_bracket
+spring.freemarker.settings.number_format: "0.######"
+spring.freemarker.settings.template_exception_handler: com.zly.commons.freemarker.SimpleTemplateExceptionHandler
+spring.freemarker.settings.log_template_exceptions: false
+spring.freemarker.settings.new_builtin_class_resolver: allows_nothing
+
+# Quartz配置
+spring.quartz.properties.org.quartz.threadPool.threadCount: 2
+spring.quartz.overwrite-existing-jobs: true
+spring.quartz.jdbc.initialize-schema: never
+
+# Liquibase配置
+spring.liquibase.enabled: true
+
+# JTA配置
+spring.jta.enabled: false
+
+# JWT配置
+jwt.sessionTimeout: 30
+
+# 系统配置
+ujcms.version: "@project.version@"
+ujcms.sequence-cache-size: 50
+ujcms.jsp-allowed: false
+ujcms.lucene-path: /WEB-INF/lucene
+ujcms.uploads-location: /uploads
+ujcms.password-pepper: 0.1.2.3.4.5.6.7.8.9.a.b.c.d.e.f.
+
+# Office功能配置
+jodconverter.local.enabled: false
+
+# 数据迁移配置
+spring.data.elasticsearch.repositories.enabled: false

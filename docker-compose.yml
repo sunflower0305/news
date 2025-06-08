@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: news-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: news
+      MYSQL_USER: newsuser
+      MYSQL_PASSWORD: newspassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - news-network
+
+  news-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      # 使用 BuildKit 加速构建
+      cache_from:
+        - maven:3.9-eclipse-temurin-17-noble
+    container_name: news-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/news?useUnicode=true&characterEncoding=utf8mb4&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: newsuser
+      SPRING_DATASOURCE_PASSWORD: newspassword
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mysql
+    volumes:
+      - news_uploads:/app/static/uploads
+      - news_lucene:/app/WEB-INF/lucene
+    networks:
+      - news-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  news_uploads:
+  news_lucene:
+
+networks:
+  news-network:
+    driver: bridge

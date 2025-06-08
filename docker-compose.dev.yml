@@ -1,0 +1,43 @@
+# 开发环境专用的docker-compose配置
+# 使用Maven缓存卷加速构建
+version: '3.8'
+
+services:
+  news-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    container_name: news-ubuntu-dev
+    ports:
+      - "80:80"
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=news
+      - MYSQL_USER=newsuser
+      - MYSQL_PASSWORD=news123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - uploads_data:/app/uploads
+      - logs_data:/var/log
+      # 挂载Maven缓存卷
+      - maven_cache:/root/.m2/repository
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql_data:
+    driver: local
+  uploads_data:
+    driver: local
+  logs_data:
+    driver: local
+  maven_cache:
+    driver: local

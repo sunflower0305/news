@@ -184,6 +184,10 @@ spring.main.banner-mode: off
 springdoc.api-docs.enabled: true
 # 文档HTML地址：/swagger-ui.html
 springdoc.swagger-ui.enabled: true
+# 配置Swagger UI使用正确的API文档URL
+springdoc.swagger-ui.url: /v3/api-docs
+# 禁用默认的petstore示例
+springdoc.swagger-ui.disable-swagger-default-url: true
 
 # MyBatis是否开启二级缓存。默认：true
 #mybatis.configuration.cache-enabled: false

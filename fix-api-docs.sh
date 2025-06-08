@@ -1,3 +1,18 @@
+#!/bin/bash
+
+# 修复 API 文档配置脚本
+
+set -e
+
+echo "🔧 修复 NewsPub API 文档配置..."
+
+# 备份原始配置
+echo "📋 备份原始配置..."
+cp src/main/java/com/zly/cms/core/SwaggerConfig.java src/main/java/com/zly/cms/core/SwaggerConfig.java.bak
+
+# 创建新的 SwaggerConfig
+echo "📝 更新 SwaggerConfig..."
+cat > src/main/java/com/zly/cms/core/SwaggerConfig.java << 'EOF'
 package com.zly.cms.core;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -52,7 +67,7 @@ public class SwaggerConfig {
                         .description("NewsPub 前台接口，包括文章、标签、用户等功能")
                         .version(version)))
                 .packagesToScan("com.zly.cms.core.web.api", "com.zly.cms.ext.web.api")
-                .pathsToMatch("/api/**", "/frontend/**")
+                .pathsToMatch("/api/**")
                 .build();
     }
 
@@ -90,7 +105,35 @@ public class SwaggerConfig {
                         .description("NewsPub 所有接口文档")
                         .version(version)))
                 .packagesToScan("com.zly.cms")
-                .pathsToMatch("/api/**", "/frontend/**")
+                .pathsToMatch("/api/**")
                 .build();
     }
 }
+EOF
+
+echo "✅ SwaggerConfig 更新完成！"
+
+# 检查是否需要重新构建
+if [ -f "target/news-*.jar" ]; then
+    echo "🔨 重新构建应用..."
+    ./build-jar.sh
+    
+    echo "🐳 重新构建 Docker 镜像..."
+    DOCKERFILE=Dockerfile.stable docker-compose -f docker-compose.local.yml build news-app
+    
+    echo "🔄 重启服务..."
+    docker-compose -f docker-compose.local.yml restart news-app
+    
+    echo "⏳ 等待服务重启..."
+    sleep 15
+    
+    echo "🌐 API 文档地址："
+    echo "   完整文档: http://localhost:8080/swagger-ui/index.html"
+    echo "   前台API: http://localhost:8080/swagger-ui/index.html?urls.primaryName=frontend"
+    echo "   后台API: http://localhost:8080/swagger-ui/index.html?urls.primaryName=backend"
+    echo "   所有API: http://localhost:8080/swagger-ui/index.html?urls.primaryName=all"
+else
+    echo "⚠️  未找到已构建的 JAR 包，请先运行 ./build-local.sh"
+fi
+
+echo "✅ API 文档修复完成！"

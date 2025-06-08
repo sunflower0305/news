@@ -1,0 +1,81 @@
+# 多阶段构建 - 构建阶段
+FROM ubuntu:22.04 AS builder
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# 安装构建依赖
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制pom.xml和源代码
+COPY pom.xml .
+COPY src ./src
+
+# 构建应用
+RUN mvn clean package -DskipTests -P jar
+
+# 运行阶段
+FROM ubuntu:22.04
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV MYSQL_ROOT_PASSWORD=root123
+ENV MYSQL_DATABASE=news
+ENV MYSQL_USER=newsuser
+ENV MYSQL_PASSWORD=news123
+
+# 安装运行时依赖
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jre-headless \
+    mysql-server \
+    mysql-client \
+    supervisor \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# 创建应用目录
+WORKDIR /app
+
+# 从构建阶段复制jar文件
+COPY --from=builder /app/target/news-*.jar /app/news-app.jar
+
+# 复制静态资源和模板
+COPY src/main/webapp /app/static
+
+# 复制配置文件
+COPY docker-application.yaml /app/application.yaml
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY start.sh /app/start.sh
+
+# 设置权限
+RUN chmod +x /app/start.sh
+
+# 配置MySQL
+RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+# 创建必要的目录
+RUN mkdir -p /var/log/supervisor \
+    && mkdir -p /app/uploads \
+    && mkdir -p /app/WEB-INF/lucene
+
+# 暴露端口
+EXPOSE 80 3306
+
+# 创建数据卷
+VOLUME ["/var/lib/mysql", "/app/uploads", "/var/log"]
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:80/ || exit 1
+
+# 启动服务
+CMD ["/app/start.sh"]

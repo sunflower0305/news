@@ -1,0 +1,39 @@
+# 使用 Google Distroless 镜像的超轻量级 Dockerfile
+FROM eclipse-temurin:17-jdk-alpine AS build
+
+WORKDIR /app
+
+# 安装 Maven
+RUN apk add --no-cache maven
+
+# 复制 Maven 配置文件
+COPY .mvn .mvn
+COPY settings-local.xml .
+COPY pom.xml .
+
+# 下载依赖
+RUN mvn dependency:go-offline -B -s settings-local.xml
+
+# 复制源代码并构建
+COPY src ./src
+RUN mvn clean package -DskipTests -P jar -s settings-local.xml
+
+# 运行时阶段 - 使用 Distroless 镜像
+FROM gcr.io/distroless/java17-debian11:nonroot
+
+WORKDIR /app
+
+# 从构建阶段复制 JAR 文件
+COPY --from=build /app/target/news-*.jar app.jar
+
+# 复制静态资源
+COPY --from=build /app/src/main/webapp ./static
+
+# 暴露端口
+EXPOSE 8080
+
+# 设置环境变量
+ENV JAVA_OPTS="-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
+
+# 启动应用（Distroless 镜像使用 java 命令）
+ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-jar", "app.jar"]

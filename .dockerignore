@@ -1,0 +1,56 @@
+# Docker 构建时忽略的文件和目录（本地构建版本）
+.git/
+.gitignore
+README.md
+CHANGELOG.md
+DOCKER-BUILD.md
+*.md
+.DS_Store
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Maven 构建相关（本地构建时不需要）
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml
+settings-local.xml
+
+# 源代码（本地构建时不需要）
+# 注意：这里不排除 src，因为需要复制静态资源
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+
+# 测试相关
+test-output/
+.nyc_output/
+coverage/
+
+# 本地配置文件
+application-local.yaml
+application-dev.yaml
+
+# 构建脚本（不需要打入镜像）
+build*.sh
+manage.sh
+test-maven.sh
+Makefile
+
+# Docker 相关文件
+Dockerfile
+Dockerfile.local
+docker-compose*.yml
+.dockerignore
